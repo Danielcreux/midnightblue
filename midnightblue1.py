@@ -5,7 +5,7 @@ import time
 import openpyxl
 import threading
 import ttkbootstrap as ttk
-from tkinter import filedialog, StringVar, messagebox, scrolledtext
+from tkinter import filedialog, StringVar, messagebox, scrolledtext, Listbox
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
@@ -135,7 +135,7 @@ def load_template():
     template_window.title("Cargar Plantilla")
     template_window.geometry("300x400")
     
-    template_listbox = ttk.Listbox(template_window)
+    template_listbox = Listbox(template_window)
     template_listbox.pack(fill='both', expand=True, padx=20, pady=20)
     
     for template in template_files:
@@ -143,21 +143,26 @@ def load_template():
     
     ttk.Button(template_window, text="Seleccionar", command=select_template).pack(pady=10)
 
+
+generate_report_stats = []
+
 def generate_report():
-    if not hasattr(generate_report, "stats"):
-        generate_report.stats = []
+    global generate_report_stats
+    if not generate_report_stats:
+        generate_report_stats = []
     
     report_file = "reporte_envios.csv"
     with open(report_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(['Fecha', 'Destinatario', 'Estado', 'Error'])
-        writer.writerows(generate_report.stats)
+        writer.writerows(generate_report_stats)
     
     log_message(f"✓ Reporte generado: {report_file}")
     webbrowser.open(report_file)
 
 def send_emails():
     def task():
+        global generate_report_stats
         smtp_server = smtp_var.get()
         username = user_var.get()
         password = pass_var.get()
@@ -222,7 +227,7 @@ def send_emails():
                     error = str(e)
                 
                 # Guardar estadísticas
-                generate_report.stats.append([
+                generate_report_stats.append([
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     receiver_email,
                     status,

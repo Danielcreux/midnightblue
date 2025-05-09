@@ -3,3 +3,6 @@ config.json
 emails.xlsx
 ~$emails.xlsx
 reporte_envios.csv
+templates/Camapaña laboral .html
+templates/nuevo verano .html
+templates/Verano.html
