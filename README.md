@@ -3,6 +3,7 @@
 
 Este proyecto se enfoca en la automatización de envío de correos masivos personalizados utilizando Python, ttkbootstrap, SMTP, Excel, HTML y CSS.
 
+
 ## Descripción
 **Programación:**
 

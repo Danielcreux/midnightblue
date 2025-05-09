@@ -1,3 +1,4 @@
+# Librerias de python 
 import os
 import json
 import smtplib
@@ -20,12 +21,14 @@ import os.path
 # Archivo de configuración
 CONFIG_FILE = "config.json"
 
+#Cargamos el archivo de configuración 
 def load_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, "r") as f:
             return json.load(f)
     return {}
 
+# Guardamos la configuración 
 def save_config():
     config = {
         "smtp_server": smtp_var.get(),
@@ -35,6 +38,7 @@ def save_config():
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f)
 
+# Seleccionamos el archivo HTML que usaremos en el template y el Excel donde estarán los clientes en este caso 
 def select_html():
     file_path = filedialog.askopenfilename(filetypes=[["HTML files", "*.html"]])
     html_var.set(file_path)
@@ -43,6 +47,7 @@ def select_excel():
     file_path = filedialog.askopenfilename(filetypes=[["Excel files", "*.xlsx;*.ods"]])
     excel_var.set(file_path)
 
+# C
 def log_message(message):
     timestamp = time.strftime("%H:%M:%S")
     formatted_message = f"[{timestamp}] {message}"
@@ -52,7 +57,7 @@ def log_message(message):
     console_text.see('end')  # Asegura que siempre se vea el último mensaje
 
 
-
+# Previsualización del Html 
 def preview_html():
     html_file = html_var.get()
     if not html_file:
@@ -64,6 +69,7 @@ def preview_html():
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo abrir el archivo HTML: {e}")
 
+# Programar el envio de correos (Restricción a solo fechas futuras )
 def schedule_email():
     def save_schedule():
         scheduled_time = datetime.strptime(f"{date_var.get()} {time_var.get()}", "%Y-%m-%d %H:%M")
@@ -76,6 +82,7 @@ def schedule_email():
         threading.Timer((scheduled_time - datetime.now()).total_seconds(), send_emails).start()
         log_message(f"✓ Envío programado para: {scheduled_time}")
 
+    #Ventana para programar el envio del correo
     schedule_window = ttk.Toplevel(root)
     schedule_window.title("Programar Envío")
     schedule_window.geometry("300x200")
@@ -91,6 +98,7 @@ def schedule_email():
     
     ttk.Button(schedule_window, text="Programar", command=save_schedule).pack(pady=20)
 
+#Guardar el template en nuestro directorio 
 def save_template():
     html_file = html_var.get()
     if not html_file:
@@ -115,6 +123,7 @@ def save_template():
     except Exception as e:
         messagebox.showerror("Error", f"Error al guardar la plantilla: {e}")
 
+#Cargamos el template guardado
 def load_template():
     templates_dir = "templates"
     if not os.path.exists(templates_dir):
@@ -126,6 +135,7 @@ def load_template():
         messagebox.showerror("Error", "No hay plantillas disponibles")
         return
     
+    #Ventana que nos mostrará las plantillas disponibles para cargar 
     def select_template():
         selected = template_listbox.get(template_listbox.curselection())
         html_var.set(os.path.join(templates_dir, selected))
@@ -143,7 +153,7 @@ def load_template():
     
     ttk.Button(template_window, text="Seleccionar", command=select_template).pack(pady=10)
 
-
+# se genera el reporte de los envios (En formato csv el cual nos indica si se completó el envio o no)
 generate_report_stats = []
 
 def generate_report():
@@ -160,6 +170,7 @@ def generate_report():
     log_message(f"✓ Reporte generado: {report_file}")
     webbrowser.open(report_file)
 
+# El envio de correo mediante el servidor SMTP
 def send_emails():
     def task():
         global generate_report_stats
@@ -190,6 +201,7 @@ def send_emails():
             server.starttls()
             server.login(username, password)
             log_message("Conexión exitosa al servidor SMTP")
+        #Error de conexión al servidor 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo conectar al servidor SMTP: {e}")
             return
@@ -253,6 +265,7 @@ def send_emails():
                     log_message(f"❌ Error al enviar correo a {receiver_email}: {str(e)}")
         
         server.quit()
+        #Nos notifica que el evio fue exitoso y a cuantos miembros se les envió el correo 
         root.after(0, lambda: progress_var.set(100))
         log_message(f"✨ Proceso completado. {sent_count} de {total_count} correos enviados exitosamente.")
         messagebox.showinfo("Éxito", f"Proceso completado.\nCorreos enviados: {sent_count}/{total_count}")
